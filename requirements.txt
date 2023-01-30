@@ -1,0 +1,6 @@
+Django>=4.1,<4.2
+wagtail>=4.1,<4.2
+psycopg2-binary
+django-countries
+django-widget-tweaks
+wagtail_grapple
