@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     "home",
     "search",
     "cms",
+    "blog",
 
     "wagtail.contrib.forms",
     "wagtail.contrib.redirects",
@@ -50,11 +51,17 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     'django.contrib.sites',
 
+    'widget_tweaks',
+
     'userauth',
     'django_countries',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
+
+    "grapple",
+    "graphene_django",
+    "channels",
 ]
 
 MIDDLEWARE = [
@@ -75,6 +82,8 @@ TEMPLATES = [
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         "DIRS": [
             os.path.join(PROJECT_DIR, "templates"),
+            os.path.join(BASE_DIR, 'userauth/templates/userauth/'),
+            os.path.join(BASE_DIR, 'cms/templates/cms/'),
         ],
         "APP_DIRS": True,
         "OPTIONS": {
@@ -198,3 +207,11 @@ ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
 ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_SIGNUP_FORM_CLASS = 'userauth.forms.SignupForm'
+
+# Grapple Config:
+ASGI_APPLICATION = "graphql_ws.django.routing.application"
+
+GRAPHENE = {"SCHEMA": "grapple.schema.schema"}
+GRAPPLE = {
+    "APPS": [],
+}

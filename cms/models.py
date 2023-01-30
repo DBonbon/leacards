@@ -20,6 +20,12 @@ from taggit.models import Tag as TaggitTag
 from taggit.models import TaggedItemBase
 from django.conf import settings
 from .blocks import CardBlock, SPEECH_TYPES
+#from grapple.types import GraphQLString
+from grapple.models import (
+        GraphQLRichText,
+        GraphQLString,
+        GraphQLStreamfield,
+    )
 
 class ArticlePage(Page):
     intro = RichTextField(blank=True, help_text="Describe the cars group's linguistic theme")
@@ -40,7 +46,36 @@ class ArticlePage(Page):
                                 choices=settings.LANGUAGES,
                                 default=settings.LANGUAGE_CODE)"""
 
+    content_panels = Page.content_panels + [
+        FieldPanel('intro'),
+        FieldPanel('cards'),
+        FieldPanel('POS'),
+        InlinePanel("categories", label="category"),
+        FieldPanel("tags"),
+    ]
 
+    graphql_fields = [
+        GraphQLString("cards"),
+        GraphQLString("POS"),
+        GraphQLString("tags"),
+        GraphQLString("post_datepyt"),
+        GraphQLRichText("categories"),
+        GraphQLStreamfield("intro"),
+    ]
+
+    settings_panels = Page.settings_panels + [
+        FieldPanel("post_date"),
+    ]
+
+    search_fields = Page.search_fields + [
+        index.SearchField('title'),
+        index.SearchField('cards'),
+    ]
+
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request, *args, **kwargs)
+        context['article_index_page'] = self.get_parent().specific
+        return context
     def get_absolute_url(self):
         return self.get_url()
 
@@ -60,27 +95,7 @@ class ArticlePage(Page):
                             if img.block_type == 'image':
                                 return img.value['image']
 
-    def get_context(self, request, *args, **kwargs):
-        context = super().get_context(request, *args, **kwargs)
-        context['article_index_page'] = self.get_parent().specific
-        return context
 
-    content_panels = Page.content_panels + [
-        FieldPanel('intro'),
-        FieldPanel('cards'),
-        FieldPanel('POS'),
-        InlinePanel("categories", label="category"),
-        FieldPanel("tags"),
-    ]
-
-    settings_panels = Page.settings_panels + [
-        FieldPanel("post_date"),
-    ]
-
-    search_fields = Page.search_fields + [
-        index.SearchField('title'),
-        index.SearchField('cards'),
-    ]
 
 
 class ArticleIndexPage(RoutablePageMixin, Page):
