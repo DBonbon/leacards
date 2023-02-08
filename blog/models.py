@@ -4,6 +4,12 @@ from wagtail.core.fields import RichTextField, StreamField
 from wagtail.admin.edit_handlers import FieldPanel, InlinePanel
 from wagtail.images.blocks import ImageChooserBlock
 from wagtail.core.blocks import CharBlock,RichTextBlock
+from wagtail.core import blocks
+from wagtail.embeds.blocks import EmbedBlock
+from wagtail.images.blocks import ImageChooserBlock
+from wagtail.snippets.blocks import SnippetChooserBlock
+from cms.blocks import TextAndButtonsBlock
+from grapple.helpers import register_streamfield_block
 from grapple.models import (
     GraphQLRichText,
     GraphQLString,
@@ -20,6 +26,7 @@ class BlogPage(Page):
             ("heading", CharBlock(classname="full title")),
             ("paragraph", RichTextBlock()),
             ("image", ImageChooserBlock()),
+            ("text_and_buttons", TextAndButtonsBlock()),
         ]
     )
 
@@ -38,3 +45,5 @@ class BlogPage(Page):
         GraphQLRichText("summary"),
         GraphQLStreamfield("body"),
     ]
+
+

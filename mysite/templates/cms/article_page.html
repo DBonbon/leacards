@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% load static wagtailcore_tags wagtailimages_tags wagtailuserbar myapp_tags %}
+
+
+{% block content %}
+ <div class="page-header">
+        <span class="page-title">
+            {{ page.title|capfirst }}
+        </span>
+
+</div>
+{% endblock %}

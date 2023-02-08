@@ -7,7 +7,7 @@ from django.http import Http404
 from wagtail import blocks
 from modelcluster.fields import ParentalManyToManyField, ParentalKey
 from wagtail.images.blocks import ImageChooserBlock
-from wagtail.admin.edit_handlers import FieldPanel, InlinePanel
+from wagtail.admin.edit_handlers import FieldPanel, InlinePanel, MultiFieldPanel
 
 from wagtail.core.fields import RichTextField, StreamField
 from wagtail.snippets.models import register_snippet
@@ -27,35 +27,45 @@ from grapple.models import (
         GraphQLStreamfield,
     )
 
-class ArticlePage(Page):
-    intro = RichTextField(blank=True, help_text="Describe the cars group's linguistic theme")
-    #Part of speech could be streanmed with snippetsg? to explore
+
+"""
+1. HomePage - 
+    a. Display most popular/promoted games, teachers
+    b. Site presentation
+    c. Aboput, contact, etc' (subpages or separate)
+
+2. Teachers - Teachers index page can be public or not
+Teacher page
+
+"""
+class GamePage(RoutablePageMixin, Page):
+    intro = RichTextField(blank=True, help_text="Describe the game theme")
     POS = models.CharField(
         max_length=20, choices=SPEECH_TYPES,
     )
-    cards = StreamField([
-        ('card', CardBlock(max_num=4, min_num=4, form_classname="card")),
-    ], use_json_field=True)
-    #card-author is poassed through the USERAuth so no need to FK field
-
     tags = ClusterTaggableManager(through="cms.PostPageTag", blank=True)
-    post_date = models.DateTimeField(
-        verbose_name="Article date", default=datetime.datetime.today)
-    #in case the original language matters
-    """language = blocks.CharBlock(max_length=10,
+    min_recommended_age = models.IntegerField(max_length=2, null=True, blank=True)
+    max_recommended_age = models.IntegerField(max_length=2, null=True, blank=True)
+    language = models.CharField(max_length=10,
                                 choices=settings.LANGUAGES,
-                                default=settings.LANGUAGE_CODE)"""
+                                default=settings.LANGUAGE_CODE)
+    post_date = models.DateTimeField(
+        verbose_name="Game date", default=datetime.datetime.today)
 
     content_panels = Page.content_panels + [
         FieldPanel('intro'),
-        FieldPanel('cards'),
         FieldPanel('POS'),
-        InlinePanel("categories", label="category"),
+        MultiFieldPanel([
+            FieldPanel('min_recommended_age'),
+            FieldPanel('max_recommended_age'),
+        ], heading=("Age Recommendation")),
+        FieldPanel('language', help_text='original language of the game'),
+        InlinePanel("categories", label="Linguistic difficulty/level"),
         FieldPanel("tags"),
     ]
 
     graphql_fields = [
-        GraphQLString("cards"),
+        GraphQLString("intro"),
         GraphQLString("POS"),
         GraphQLString("tags"),
         GraphQLString("post_datepyt"),
@@ -69,12 +79,37 @@ class ArticlePage(Page):
 
     search_fields = Page.search_fields + [
         index.SearchField('title'),
+        index.SearchField('POS'),
+    ]
+
+    # Game-author is passed through the USERAuth so no need to FK field
+
+class CardsPage(Page):
+    intro = RichTextField(blank=True, help_text="Describe the cars group's linguistic theme")
+    #Part of speech could be streanmed with snippetsg? to explore
+    cards = StreamField([
+        ('card', CardBlock(form_classname="card")),
+    ], max_num=4, min_num=4, use_json_field=True)
+
+
+    content_panels = Page.content_panels + [
+        FieldPanel('intro'),
+        FieldPanel('cards'),
+    ]
+
+    graphql_fields = [
+        GraphQLString("cards"),
+        GraphQLString("Intro"),
+    ]
+
+    search_fields = Page.search_fields + [
+        index.SearchField('title'),
         index.SearchField('cards'),
     ]
 
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request, *args, **kwargs)
-        context['article_index_page'] = self.get_parent().specific
+        context['game_page'] = self.get_parent().specific
         return context
     def get_absolute_url(self):
         return self.get_url()
@@ -98,11 +133,11 @@ class ArticlePage(Page):
 
 
 
-class ArticleIndexPage(RoutablePageMixin, Page):
+class GameIndexPage(RoutablePageMixin, Page):
     intro = RichTextField(blank=True)
 
     # Specifies that only ArticlePage objects can live under this index page
-    subpage_types = ['ArticlePage', 'ArticleIndexPage']
+    #subpage_types = ['ArticlePage', 'ArticleIndexPage']
 
     content_panels = Page.content_panels + [
         FieldPanel('intro', classname='full'),
@@ -111,13 +146,13 @@ class ArticleIndexPage(RoutablePageMixin, Page):
 
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request, *args, **kwargs)
-        context['posts'] = ArticlePage.objects.live().public()
+        context['posts'] = GamePage.objects.live().public()
         context['blog_page'] = self
-        context['categories']=BlogCategory.objects.all()
+        context['categories']=GameCategory.objects.all()
         return context
 
     def get_posts(self):
-        return ArticlePage.objects.descendant_of(self).live().order_by("-post_date")
+        return GamePage.objects.descendant_of(self).live().order_by("-post_date")
 
 
     @route(r'^tag/(?P<tag>[-\w]+)/$')
@@ -126,7 +161,7 @@ class ArticleIndexPage(RoutablePageMixin, Page):
         self.filter_term = tag
         context = self.get_context(request)
         context["posts"]=self.get_posts().filter(tags__slug=tag)
-        return render(request, 'cms/article_index_page.html', context)
+        return render(request, 'cms/game_index_page.html', context)
 
     @route(r'^category/(?P<category>[-\w]+)/$')
     def post_by_category(self, request, category, *args, **kwargs):
@@ -134,7 +169,7 @@ class ArticleIndexPage(RoutablePageMixin, Page):
         self.filter_term = category
         context = self.get_context(request)
         context["posts"]=self.get_posts().filter(categories__blog_category__slug=category)
-        return render(request, 'cms/article_index_page.html', context)
+        return render(request, 'cms/game_index_page.html', context)
 
     @route(r"^(\d{4})/(\d{2})/(\d{2})/(.+)/$")
     def post_by_date_slug(self, request, year, month, day, slug, *args, **kwargs):
@@ -151,24 +186,24 @@ class ArticleIndexPage(RoutablePageMixin, Page):
 
 
 #Categories
-class PostPageBlogCategory(models.Model):
+class PostPageGameCategory(models.Model):
     page = ParentalKey(
-        "cms.ArticlePage", on_delete=models.CASCADE, related_name="categories"
+        "cms.GamePage", on_delete=models.CASCADE, related_name="categories"
     )
-    blog_category = models.ForeignKey(
-        "cms.BlogCategory", on_delete=models.CASCADE, related_name="post_pages"
+    game_category = models.ForeignKey(
+        "cms.GameCategory", on_delete=models.CASCADE, related_name="post_pages"
     )
 
     panels = [
-        FieldPanel("blog_category"),
+        FieldPanel("game_category"),
     ]
 
     class Meta:
-        unique_together = ("page", "blog_category")
+        unique_together = ("page", "game_category")
 
 
 @register_snippet
-class BlogCategory(models.Model):
+class GameCategory(models.Model):
     name = models.CharField(max_length=255)
     slug = models.SlugField(unique=True, max_length=80)
 
@@ -186,7 +221,7 @@ class BlogCategory(models.Model):
 
 #Tags
 class PostPageTag(TaggedItemBase):
-    content_object = ParentalKey("ArticlePage", related_name="post_tags")
+    content_object = ParentalKey("GamePage", related_name="post_tags")
 
 @register_snippet
 class Tag(TaggitTag):

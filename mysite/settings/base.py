@@ -211,7 +211,10 @@ ACCOUNT_SIGNUP_FORM_CLASS = 'userauth.forms.SignupForm'
 # Grapple Config:
 ASGI_APPLICATION = "graphql_ws.django.routing.application"
 
+# Grapple Config:
+#GRAPPLE_EXPOSE_GRAPHIQL = True
 GRAPHENE = {"SCHEMA": "grapple.schema.schema"}
 GRAPPLE = {
-    "APPS": [],
+    "APPS": ["home", "cms", "blog"],
+    "EXPOSE_GRAPHIQL": True,
 }
