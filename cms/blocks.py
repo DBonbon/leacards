@@ -66,7 +66,7 @@ class CardBlock(blocks.StructBlock):
     ]
 
     """class Meta:
-        template = ''
+        template = 'cms/card_block.html'
         icon = 'list-ol'"""
 
 @register_streamfield_block

@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     "wagtail.images",
     "wagtail.search",
     "wagtail.admin",
+    "wagtail.contrib.routable_page",
     "wagtail",
 
     "modelcluster",
@@ -50,6 +51,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     'django.contrib.sites',
+    'django_extensions',
 
     'widget_tweaks',
 
@@ -83,7 +85,7 @@ TEMPLATES = [
         "DIRS": [
             os.path.join(PROJECT_DIR, "templates"),
             os.path.join(BASE_DIR, 'userauth/templates/userauth/'),
-            os.path.join(BASE_DIR, 'cms/templates/cms/'),
+            #os.path.join(BASE_DIR, 'cms/templates/cms/'),
         ],
         "APP_DIRS": True,
         "OPTIONS": {
@@ -109,6 +111,7 @@ DATABASES = {
         "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
     }
 }
+
 
 
 # Password validation

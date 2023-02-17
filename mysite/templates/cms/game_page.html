@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% load wagtailcore_tags wagtailimages_tags widget_tweaks static %}
+{% load wagtailuserbar wagtailroutablepage_tags %}
+{% load i18n %}
+
+{% block content %}
+
+
+<div class="page">
+<div class="container-fluid">
+    <div class="page-header">
+
+        <span class="page-title">
+            {{ page.title|capfirst }}
+        </span>
+        {% if page.intro %}
+        <div class="page-intro">
+            {{ page.intro|richtext }}
+        </div>
+        {% endif %}
+        {% if page.owner.first_name %}
+        <div class="author">
+         {% get_current_language as LANGUAGE_CODE %}
+        <a href="/{{ LANGUAGE_CODE }}/blof/{{ page.owner.username }}/" class="author text-decoration-none">
+        {{ page.owner.first_name }}&nbsp;{{ page.owner.last_name }}
+        </a>
+        </div>
+        {% endif %}
+        <div class="pub-date">
+            {{ page.first_published_at }}
+        </div>
+
+
+      <div class="page-header-line"></div>
+      <div class="age-range">Recommended age: {{ page.min_recommended_age }} - {{ page.max_recommended_age }}</div>
+      <div class="age-range">Original language: {{ page.language }}</div>
+    </div>
+
+
+<div class="page-body">
+<div>
+
+    {% for post in page.get_children %}
+        <h2><a href="{% pageurl post %}">{{ post.title }}</a></h2>
+        {{ post.specific.intro }}
+        {{ post.specific.body|richtext }}
+        {% for block in post.specific.cards %}
+        {% if block.block_type == 'card' %}
+        {% image block.value.image width-400 %}
+            <h1>{{ block.value }}</h1>
+        {% else %}
+            <section class="block-{{ block.block_type }}">
+                {% include_block block %}
+            </section>
+        {% endif %}
+    {% endfor %}
+
+    {% endfor %}
+
+    {% for block in page.content %}
+
+         <div class="">
+            <div class="">
+                {% include_block block %}
+            </div>
+        </div>
+    {% endfor %}
+</div>
+</div>
+
+</div>
+</div>
+
+{% endblock %}
+

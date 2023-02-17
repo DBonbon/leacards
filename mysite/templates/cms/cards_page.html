@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% load wagtailcore_tags wagtailimages_tags widget_tweaks static %}
+{% load wagtailuserbar wagtailroutablepage_tags %}
+{% load i18n %}
+
+{% block content %}
+
+<style>
+.card-img-top {
+width:80px;
+height:80px;
+margin-left:40%;
+</style>
+
+  <div class="py-5">
+    <div class="container">
+      <div class="row hidden-md-up">
+        {% for block in page.cards %}
+     {% if block.block_type == 'card' %}
+
+        <div class="col-md-4 mb-5">
+          <div class="card">
+            <div class="card-block justify-content-center">
+               <div class="card-header text-center" style="background:red;">
+                 {{ game_page.POS }}</br>
+                   {{ game_page.language }}</br>
+                   level2
+              </div>
+
+          {% if block.value.image %}
+                    {% image block.value.image original as img %}
+                        {% image block.value.image original as img %}
+                        <img src="{{ img.url }}" alt="{{ img.alt }}" class="card-img-top rounded-circle" width="80">
+        {% endif %}
+
+                 <h4 class="card-title text-center">{{ block.value.card_title }}</h4>
+
+         <h6 class="card-sub-title">{{ block.value.card_subtitle }}</h6>
+
+              <p class="card-text p-y-1">Some quick example text to build on the card title .</p>
+              <a href="#" class="card-link">By {{ game_page.owner.username }}</a>
+              <a href="#" class="card-link">other link</a>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+    {% endfor %}
+
+      </div>
+
+    </div>
+  </div>
+
+
+{% endblock %}
+
+
+
+

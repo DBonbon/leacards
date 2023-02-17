@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% load wagtailcore_tags wagtailimages_tags widget_tweaks static %}
+{% load wagtailuserbar wagtailroutablepage_tags %}
+{% load i18n %}
+
+{% block content %}
+
+<style>
+.card {
+    max-width:300px;
+    max-height:300PX;
+}
+
+.upper{
+
+        height: 100px;
+
+       }
+
+       .upper img{
+
+        width: 100%;
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+
+       }
+</style>
+<div class="page">
+<div class"container-fluid">
+    <div class="page-header">
+
+        <span class="page-title">
+            {{ page.title|capfirst }}
+        </span>
+        {% if page.intro %}
+        <div class="page-intro">
+            {{ page.intro|richtext }}
+        </div>
+        {% endif %}
+        <!--
+        {% if page.owner.first_name %}
+        <div class="author">
+         {% get_current_language as LANGUAGE_CODE %}
+        <a href="/{{ LANGUAGE_CODE }}/blof/{{ page.owner.username }}/" class="author text-decoration-none">
+        {{ page.owner.first_name }}&nbsp;{{ page.owner.last_name }}
+        </a>
+        </div>
+        {% endif %}
+        <div class="pub-date">
+            {{ page.first_published_at }}
+        </div>
+
+
+
+      <div class="age-range">Recommended age: {{ page.min_recommended_age }} - {{ page.max_recommended_age }}</div>
+      <div class="age-range">Original language: {{ page.language }}</div>
+    </div>
+-->
+
+<!--card details:
+fit img to card
+add def to pass language
+level
+author
+id-
+extract id, with card name in red
+
+-->
+<div class="page-body">
+<div>
+<div class="container">
+<div class="row row-cols-1 row-cols-md-2 g-4">
+    {% for block in page.cards %}
+     {% if block.block_type == 'card' %}
+  <div class="col mx-auto">
+    <div class="card d-flex justify-content-center">
+        <div class="card-header" style="background:red;">
+         {{ game_page.POS }}
+        </div>
+      <div class="card-body">
+          <div class="">
+          {% if block.value.image %}
+                    {% image block.value.image original as img %}
+                        {% image block.value.image original as img %}
+                        <img src="{{ img.url }}" alt="{{ img.alt }}" class="rounded-circle" width="80">
+        {% endif %}
+        </div>
+            <h5 class="card-title text-center">{{ block.value.card_title }}</h5>
+
+         <p class="card-sub-title">{{ block.value.card_subtitle }}</p>
+
+
+      </div>
+      <div class="card-footer">
+{{ game_page.title }}</br>
+{{ game_page.language }}</br>
+{{ game_page.owner.username }}</br>
+{{ game_page.POS }}</br>
+{{ page.id }}</br>
+{{ block.id }}</br>
+{{ block|length }}</br>
+{{ page.cards|length }}</br>
+
+{{ forloop.counter }}</br>
+      </div>
+    </div>
+  </div>
+    {% endif %}
+    {% endfor %}
+</div>
+</div>
+{{ game_page.title }}</br>
+{{ game_page.language.value }}</br>
+{{ game_page.owner }}</br>
+{{ game_page.POS }}</br>
+
+<div style="margin-bottom:30px"></div>
+</div>
+</div>
+
+</div>
+</div>
+
+{% endblock %}
+
